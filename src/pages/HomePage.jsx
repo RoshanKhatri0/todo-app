@@ -5,6 +5,7 @@ const HomePage = () => {
   const [allTodos, setTodos] = useState([])
   const [newTitle, setNewTitle] = useState('')
   const [newDescription, setNewDescription] = useState('')
+  const [completedTodos, setCompletedTodos] = useState([])
 
   const handleAddTodo = () => {
     let newTodoItem = {
@@ -20,16 +21,48 @@ const HomePage = () => {
   }
   const handleDeleteTodo = (index) =>{
     let reducedTodo = [...allTodos]
-    reducedTodo.splice(index)
+    reducedTodo.splice (index,1)
 
     localStorage.setItem('todoList',JSON.stringify(reducedTodo))
     setTodos(reducedTodo)
   }
+  const handleComplete = (index)=>{
+    let now = new Date()
+    let dd = now.getDate()
+    let mm = now.getMonth() +1
+    let yy = now.getFullYear()
+    let h = now.getHours()
+    let m = now.getMinutes()
+    let s = now.getSeconds()
+    let completedOn = `${dd}-${mm}-${yy} at ${h}:${m}:${s}`
+
+    let filteredItem = {
+      ...allTodos[index],
+      completedOn:completedOn
+    }
+    let updatedCompletedArr = [...completedTodos]
+    updatedCompletedArr.push(filteredItem)
+    setCompletedTodos(updatedCompletedArr)
+    handleDeleteTodo(index)
+    localStorage.setItem('completedTodo',JSON.stringify(updatedCompletedArr))
+  }
+  const handleDeleteCompletedTodo = (index) =>{
+    let reducedTodo = [...completedTodos]
+    reducedTodo.splice (index,1)
+
+    localStorage.setItem('completedTodo',JSON.stringify(reducedTodo))
+    setCompletedTodos(reducedTodo)
+  }
 
   useEffect(() => {
     let savedTodo = JSON.parse(localStorage.getItem('todoList'))
+    let savedCompletedTodo = JSON.parse(localStorage.getItem('completedTodo'))
+
     if (savedTodo) {
       setTodos(savedTodo)
+    }
+    if (savedCompletedTodo) {
+      setCompletedTodos(savedCompletedTodo)
     }
   }, [])
   return (
@@ -67,7 +100,7 @@ const HomePage = () => {
           </div>
         </div>
 
-        {allTodos.map((item, index) => {
+        {isCompleteScreen===false && allTodos.map((item, index) => {
           return (
             <>
               <div className="row border border-black p-2 m-2" key={index}>
@@ -75,15 +108,32 @@ const HomePage = () => {
                   <h2><strong>Title: </strong>{item.title}</h2>
                   <p><strong>Description: </strong>{item.description}</p>
                 </div>
-                <div className="col-md-2">
-                  <div className="btn btn-success mx-1"><i className="fa-solid fa-check"></i></div>
+                <div className="col-md-2 d-flex justify-content-center align-items-center">
+                  <div className="btn btn-success mx-1" onClick={()=>handleComplete(index)}><i className="fa-solid fa-check"></i></div>
                   <div className="btn btn-danger mx-1" onClick={()=>handleDeleteTodo(index)}><i className="fa-solid fa-trash"></i></div>
                 </div>
               </div>
             </>
           )
         })
+        }
+        {isCompleteScreen===true && completedTodos.map((item, index) => {
+          return (
+            <>
+              <div className="row border border-black p-2 m-2" key={index}>
+                <div className="col-md-9">
+                  <h2><strong>Title: </strong>{item.title}</h2>
+                  <p><strong>Description: </strong>{item.description}</p>
+                  <p><small>Completed on: </small>{item.completedOn}</p>
 
+                </div>
+                <div className="col-md-2 d-flex justify-content-center align-items-center">
+                  <div className="btn btn-danger mx-1" onClick={()=>handleDeleteCompletedTodo(index)}><i className="fa-solid fa-trash"></i></div>
+                </div>
+              </div>
+            </>
+          )
+        })
         }
       </div>
     </>
