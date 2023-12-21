@@ -1,14 +1,10 @@
-import './App.css';
-import Navbar from './components/Navbar';
-import HomePage from './pages/HomePage';
+import React from 'react'
+import HomePage from './pages/HomePage'
 
-function App() {
+const App = () => {
   return (
-    <>
-      <HomePage/>
-      {/* <Navbar/> */}
-    </>
-  );
+    <HomePage/>
+  )
 }
 
-export default App;
+export default App
